@@ -1,0 +1,324 @@
+/* =========================================================
+   Design tokens — Admin Panel Usaha Rosok
+   Tema industrial: besi teroksidasi, karat/tembaga, kraft paper
+========================================================= */
+:root {
+    --ink: #1F2421;           /* sidebar bg, teks utama gelap */
+    --ink-soft: #2C332E;      /* hover item sidebar */
+    --rust: #B5502D;          /* aksen utama (aktif, tombol primary) */
+    --rust-dark: #8F3D20;
+    --paper: #F6F2E9;         /* bg konten */
+    --paper-card: #FFFFFF;
+    --steel: #6B7280;         /* teks sekunder */
+    --steel-line: #E4DFD3;    /* border/divider */
+    --ok: #4C7A52;            /* status lunas / positif */
+    --ok-bg: #E9F1E9;
+    --warn: #C97F1D;          /* status hutang/piutang */
+    --warn-bg: #FBF0DF;
+    --danger: #B3392C;
+    --danger-bg: #FBEAE7;
+
+    --font-ui: 'Poppins', sans-serif;
+    --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+body {
+    font-family: var(--font-ui);
+    background-color: var(--paper);
+    color: var(--ink);
+    font-size: 14px;
+}
+
+.figure, .money {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+}
+
+a { text-decoration: none; }
+
+/* ---------- Sidebar (statis, klasik) ---------- */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 248px;
+    background-color: var(--ink);
+    color: #DAD6CC;
+    display: flex;
+    flex-direction: column;
+    z-index: 1030;
+}
+
+.sidebar-brand {
+    padding: 20px 22px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.sidebar-brand .brand-title {
+    color: #fff;
+    font-weight: 600;
+    font-size: 16px;
+    margin: 0;
+    line-height: 1.3;
+}
+
+.sidebar-brand .brand-sub {
+    color: var(--rust);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-weight: 500;
+}
+
+.sidebar-nav {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 0;
+}
+
+.sidebar-nav .nav-section-label {
+    color: #6B7268;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 14px 22px 6px;
+    font-weight: 600;
+}
+
+.sidebar-nav a.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 22px;
+    color: #C7C3B8;
+    font-size: 13.5px;
+    font-weight: 400;
+    border-left: 3px solid transparent;
+    transition: background-color .12s ease, color .12s ease;
+}
+
+.sidebar-nav a.nav-link i {
+    width: 18px;
+    text-align: center;
+    font-size: 15px;
+    color: #8D897D;
+}
+
+.sidebar-nav a.nav-link:hover {
+    background-color: var(--ink-soft);
+    color: #fff;
+}
+
+.sidebar-nav a.nav-link.active {
+    background-color: var(--ink-soft);
+    color: #fff;
+    border-left-color: var(--rust);
+    font-weight: 500;
+}
+
+.sidebar-nav a.nav-link.active i {
+    color: var(--rust);
+}
+
+.sidebar-nav .nav-key {
+    margin-left: auto;
+    font-size: 10px;
+    color: #6B7268;
+    border: 1px solid #454B44;
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-family: var(--font-mono);
+}
+
+.sidebar-footer {
+    padding: 14px 22px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+/* ---------- Main area ---------- */
+.main-wrapper {
+    margin-left: 248px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+
+    width: calc(100% - 248px);
+}
+
+.topbar {
+    background-color: var(--paper-card);
+    border-bottom: 1px solid var(--steel-line);
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+}
+
+.topbar h1 {
+    font-size: 18px;
+    font-weight: 500;
+    margin: 0;
+    color: var(--ink);
+}
+
+.topbar .topbar-date {
+    font-size: 12px;
+    color: var(--steel);
+}
+
+.btn-rust {
+    background-color: var(--rust);
+    border-color: var(--rust);
+    color: #fff;
+    font-weight: 500;
+    font-size: 13.5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+}
+
+.btn-rust:hover {
+    background-color: var(--rust-dark);
+    border-color: var(--rust-dark);
+    color: #fff;
+}
+
+.btn-rust kbd {
+    background-color: rgba(255,255,255,0.18);
+    border: none;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    padding: 1px 5px;
+    border-radius: 3px;
+}
+
+.content-area {
+    padding: 24px 28px 40px;
+    flex: 1;
+}
+
+/* ---------- Cards ---------- */
+.stat-card {
+    background-color: var(--paper-card);
+    border: 1px solid var(--steel-line);
+    border-radius: 10px;
+    padding: 18px 20px;
+    height: 100%;
+}
+
+.stat-card .stat-label {
+    font-size: 12px;
+    color: var(--steel);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.stat-card .stat-label i {
+    color: var(--rust);
+    font-size: 13px;
+}
+
+.stat-card .stat-value {
+    font-family: var(--font-mono);
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.2;
+}
+
+.stat-card .stat-note {
+    font-size: 11.5px;
+    color: var(--steel);
+    margin-top: 4px;
+}
+
+/* ---------- Table ---------- */
+.panel {
+    background-color: var(--paper-card);
+    border: 1px solid var(--steel-line);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.panel-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--steel-line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.panel-header h2 {
+    font-size: 14.5px;
+    font-weight: 500;
+    margin: 0;
+}
+
+.table-rosok {
+    margin: 0;
+    font-size: 13px;
+}
+
+.table-rosok thead th {
+    background-color: #FAF8F2;
+    color: var(--steel);
+    font-weight: 500;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-bottom: 1px solid var(--steel-line);
+    padding: 10px 16px;
+}
+
+.table-rosok td {
+    padding: 10px 16px;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--steel-line);
+    color: var(--ink);
+}
+
+.table-rosok tbody tr:last-child td { border-bottom: none; }
+
+.badge-tipe-beli {
+    background-color: var(--warn-bg);
+    color: var(--warn);
+    font-weight: 500;
+    font-size: 11px;
+    padding: 3px 9px;
+    border-radius: 20px;
+}
+
+.badge-tipe-jual {
+    background-color: var(--ok-bg);
+    color: var(--ok);
+    font-weight: 500;
+    font-size: 11px;
+    padding: 3px 9px;
+    border-radius: 20px;
+}
+
+.badge-lunas { color: var(--ok); background-color: var(--ok-bg); }
+.badge-hutang, .badge-piutang { color: var(--warn); background-color: var(--warn-bg); }
+.badge-status {
+    font-weight: 500;
+    font-size: 11px;
+    padding: 3px 9px;
+    border-radius: 20px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--steel);
+    font-size: 13px;
+}
+
+.empty-state i { font-size: 26px; color: var(--steel-line); margin-bottom: 10px; display: block; }
