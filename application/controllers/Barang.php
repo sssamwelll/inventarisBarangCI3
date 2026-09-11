@@ -14,9 +14,22 @@ class Barang extends MY_Controller
 
     public function index()
     {
+        $this->load->library('pagination');
+
+        $per_page = 5;
+        $halaman = max(1, (int) $this->input->get('halaman'));
+        $offset = ($halaman - 1) * $per_page;
+
+        $total_rows = $this->Barang_model->count_barang_aktif();
+
+        $config = default_pagination_config(base_url('Barang'), $total_rows, $per_page);
+        $this->pagination->initialize($config);
+
         $data['page_title'] = 'Master Barang';
-        $data['barang'] = $this->Barang_model->get_semua_barang();
+        $data['barang'] = $this->Barang_model->get_semua_barang($per_page, $offset);
         $data['kategori'] = $this->Barang_model->get_semua_kategori();
+        $data['pagination_links'] = $this->pagination->create_links();
+        $data['total_rows'] = $total_rows;
 
         $this->render('barang/index', $data);
     }

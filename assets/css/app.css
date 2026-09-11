@@ -6,6 +6,7 @@
     --ink: #1F2421;           /* sidebar bg, teks utama gelap */
     --ink-soft: #2C332E;      /* hover item sidebar */
     --rust: #B5502D;          /* aksen utama (aktif, tombol primary) */
+    --rust-bg: #bd6143;
     --rust-dark: #8F3D20;
     --paper: #F6F2E9;         /* bg konten */
     --paper-card: #FFFFFF;
@@ -20,6 +21,15 @@
 
     --font-ui: 'Poppins', sans-serif;
     --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+.bg-rust {
+    background-color: var(--rust-bg);
+}
+
+.bg-warn {
+    background-color: var(--warn);
+    color: #ffff;
 }
 
 body {
@@ -48,6 +58,7 @@ a { text-decoration: none; }
     display: flex;
     flex-direction: column;
     z-index: 1030;
+    transition: transform 0.3s ease;
 }
 
 .sidebar-brand {
@@ -144,6 +155,7 @@ a { text-decoration: none; }
     flex-direction: column;
 
     width: calc(100% - 248px);
+    transition: margin-left 0.3s ease, width 0.3s ease;
 }
 
 .topbar {
@@ -285,7 +297,9 @@ a { text-decoration: none; }
     color: var(--ink);
 }
 
-.table-rosok tbody tr:last-child td { border-bottom: none; }
+.table-rosok tbody tr:last-child td {
+    border-bottom: none;
+}
 
 .badge-tipe-beli {
     background-color: var(--warn-bg);
@@ -321,4 +335,98 @@ a { text-decoration: none; }
     font-size: 13px;
 }
 
-.empty-state i { font-size: 26px; color: var(--steel-line); margin-bottom: 10px; display: block; }
+.empty-state i {
+    font-size: 26px; color: var(--steel-line); margin-bottom: 10px; display: block;
+}
+
+/* ---------- jQuery UI Autocomplete (dropdown nama pihak) ---------- */
+.ui-autocomplete {
+    max-height: 220px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background-color: var(--paper-card);
+    border: 1px solid var(--steel-line);
+    border-radius: 8px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    padding: 4px;
+    z-index: 3000;
+    font-family: var(--font-ui);
+    font-size: 13px;
+    list-style: none;
+    margin: 6px 0 0;
+
+    min-width: 200px !important;    /* Lebar minimal */
+    max-width: 400px !important;    /* Lebar maksimal */
+    width: auto !important;  
+}
+
+.ui-autocomplete .ui-menu-item-wrapper,
+.ui-autocomplete .ui-menu-item > a {
+    display: block;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--ink);
+
+}
+
+.ui-autocomplete .ui-menu-item-wrapper.ui-state-active,
+.ui-autocomplete .ui-menu-item > a.ui-state-active {
+    background-color: var(--paper);
+    color: var(--rust);
+    border: none;
+}
+
+.label-harga-langganan {
+    font-size: 10.5px;
+    color: var(--rust);
+    margin-top: 3px;
+}
+
+/* ---------- Pagination ---------- */
+.pagination .page-link {
+    color: var(--ink);
+    border-color: var(--steel-line);
+    font-family: var(--font-ui);
+    font-size: 12.5px;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--rust);
+    border-color: var(--rust);
+    color: #fff;
+}
+
+.pagination .page-link:hover {
+    background-color: var(--paper);
+    color: var(--rust);
+}
+
+.pagination .page-item.disabled .page-link {
+    color: var(--steel-line);
+}
+
+/* Sidebar Overlay */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1025;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%); /* Sembunyikan ke kiri */
+    }
+    .sidebar.show {
+        transform: translateX(0); /* Munculkan saat class 'show' aktif */
+    }
+    .main-wrapper {
+        margin-left: 0;
+        width: 100%;
+    }
+    .sidebar-overlay.show {
+        display: block; /* Munculkan overlay gelap saat sidebar terbuka */
+    }
+}

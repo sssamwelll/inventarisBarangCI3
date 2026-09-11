@@ -18,4 +18,10 @@ $(function () {
     if (autoFocusEl) {
         autoFocusEl.focus();
     }
+
+    $('#btn-sidebar-toggle, #sidebar-overlay').on('click', function(e) {
+        e.preventDefault();
+        $('.sidebar').toggleClass('show');
+        $('#sidebar-overlay').toggleClass('show');
+    });
 });

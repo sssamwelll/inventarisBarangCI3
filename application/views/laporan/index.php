@@ -1,4 +1,7 @@
 <div class="topbar">
+    <button type="button" id="btn-sidebar-toggle" class="btn d-md-none me-3" style="background:none; border:none; padding:0; color:var(--ink); font-size:20px;">
+        <i class="fa-solid fa-bars"></i>
+    </button>
     <div>
         <h1>Laporan</h1>
         <span class="topbar-date"><?= date('d M', strtotime($tanggal_dari)) ?> – <?= date('d M Y', strtotime($tanggal_sampai)) ?></span>

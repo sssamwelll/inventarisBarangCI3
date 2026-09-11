@@ -49,4 +49,5 @@ function menu_active($current, $key) {
     </div>
 </aside>
 
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
 <div class="main-wrapper">

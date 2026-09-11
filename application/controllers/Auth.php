@@ -56,7 +56,7 @@ class Auth extends CI_Controller {
                 );
                 
                 $this->session->set_userdata($session_data);
-                redirect('Dashboard');
+                redirect('Transaksi/tambah');
                 
             } else {
                 $this->session->set_flashdata('error', 'Password yang Anda masukkan salah!');

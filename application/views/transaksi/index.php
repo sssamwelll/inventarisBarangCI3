@@ -1,4 +1,7 @@
 <div class="topbar">
+    <button type="button" id="btn-sidebar-toggle" class="btn d-md-none me-3" style="background:none; border:none; padding:0; color:var(--ink); font-size:20px;">
+        <i class="fa-solid fa-bars"></i>
+    </button>
     <div>
         <h1>Transaksi</h1>
         <span class="topbar-date">Riwayat transaksi beli dan jual</span>
@@ -82,6 +85,14 @@
                     <?php endif; ?>
                 </tbody>
             </table>
+            <?php if ($total_rows > 0): ?>
+                <div class="d-flex justify-content-between align-items-center px-3 py-2" style="border-top:1px solid var(--steel-line);">
+                    <span style="font-size:12px; color:var(--steel);">
+                        Menampilkan <?= count($transaksi) ?> dari <?= $total_rows ?> transaksi
+                    </span>
+                    <?= $pagination_links ?>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 </div>

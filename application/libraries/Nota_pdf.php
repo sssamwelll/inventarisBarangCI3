@@ -111,9 +111,22 @@ class Nota_pdf extends FPDF
         $this->Line(5, $this->GetY(), $this->GetPageWidth() - 5, $this->GetY());
         $this->Ln(2);
 
-        $this->SetFont('Arial', 'B', 9);
-        $this->Cell(45, 5, 'TOTAL', 0, 0, 'R');
-        $this->Cell(25, 5, rupiah($t->total), 0, 1, 'R');
+        if ($t->potongan > 0) {
+            $this->SetFont('Arial', '', 8);
+            $this->Cell(45, 4, 'Total Barang', 0, 0, 'R');
+            $this->Cell(25, 4, rupiah($t->total, ''), 0, 1, 'R');
+
+            $this->Cell(45, 4, 'Potongan', 0, 0, 'R');
+            $this->Cell(25, 4, '-' . rupiah($t->potongan, ''), 0, 1, 'R');
+
+            $this->SetFont('Arial', 'B', 9);
+            $this->Cell(45, 5, 'TOTAL DIBAYAR', 0, 0, 'R');
+            $this->Cell(25, 5, rupiah($t->total - $t->potongan), 0, 1, 'R');
+        } else {
+            $this->SetFont('Arial', 'B', 9);
+            $this->Cell(45, 5, 'TOTAL', 0, 0, 'R');
+            $this->Cell(25, 5, rupiah($t->total), 0, 1, 'R');
+        }
 
         // Kolom tanda tangan
         $lawan = $t->tipe === 'beli' ? 'Penjual' : 'Pembeli';

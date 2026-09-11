@@ -14,9 +14,22 @@ class Transaksi extends MY_Controller
 
     public function index()
     {
-        $data['page_title'] = 'Transaksi';
-        $data['transaksi'] = $this->Transaksi_model->get_transaksi(25);
+        $this->load->library('pagination');
 
+        $per_page = 10;
+        $halaman = max(1, (int) $this->input->get('halaman'));
+        $offset = ($halaman - 1) * $per_page;
+        
+        $total_rows = $this->Transaksi_model->count_all_transaksi();
+
+        $config = default_pagination_config(base_url('Transaksi'), $total_rows, $per_page);
+        $this->pagination->initialize($config);
+
+        $data['page_title'] = 'Transaksi';
+        $data['transaksi'] = $this->Transaksi_model->get_transaksi($per_page, $offset);
+        $data['pagination_links'] = $this->pagination->create_links();
+        $data['total_rows'] = $total_rows;
+       
         $this->render('transaksi/index', $data);
     }
 
@@ -44,8 +57,45 @@ class Transaksi extends MY_Controller
         $data['page_title'] = 'Transaksi Baru';
         $data['barang_list'] = $this->Transaksi_model->get_barang_options();
         $data['form_rows'] = $this->build_form_rows();
+        $data['nota'] = $this->Transaksi_model->generate_no_nota();
+        
 
         $this->render('transaksi/tambah', $data);
+    }
+
+    // Endpoint AJAX:
+    public function cari_nama_pihak()
+    {
+        $keyword = $this->input->get('term');
+        $hasil = $this->Transaksi_model->cari_nama_pihak($keyword);
+
+        $daftar_nama = array();
+        foreach ($hasil as $h) {
+            $daftar_nama[] = $h->nama_pihak;
+        }
+
+        $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode($daftar_nama));
+    }
+    public function cek_harga_langganan()
+    {
+        $nama_pihak = trim((string) $this->input->get('nama_pihak'));
+        $barang_id = (int) $this->input->get('barang_id');
+        $tipe = $this->input->get('tipe');
+
+        $response = array('ada' => false);
+
+        if ($nama_pihak !== '' && $barang_id > 0 && in_array($tipe, array('beli', 'jual'), true)) {
+            $row = $this->Transaksi_model->get_harga_langganan($nama_pihak, $barang_id, $tipe);
+            if ($row) {
+                $response = array('ada' => true, 'harga_satuan' => (float) $row->harga_satuan);
+            }
+        }
+
+        $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode($response));
     }
 
     public function simpan()
@@ -76,6 +126,8 @@ class Transaksi extends MY_Controller
             'nama_pihak' => trim((string) $this->input->post('nama_pihak', true)),
             'no_hp' => trim((string) $this->input->post('no_hp', true)),
             'status_bayar' => $this->input->post('status_bayar', true),
+            'potongan' => $this->input->post('potongan', true),
+            'catatan_potongan' => trim((string) $this->input->post('catatan_potongan', true)),
         );
 
         $result = $this->Transaksi_model->save_transaksi($header, $items);

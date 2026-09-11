@@ -1,4 +1,7 @@
 <div class="topbar">
+    <button type="button" id="btn-sidebar-toggle" class="btn d-md-none me-3" style="background:none; border:none; padding:0; color:var(--ink); font-size:20px;">
+        <i class="fa-solid fa-bars"></i>
+    </button>
     <div>
         <h1>Dashboard</h1>
         <span class="topbar-date"><?= date('l, d F Y') ?></span>
@@ -9,7 +12,6 @@
 </div>
 
 <div class="content-area">
-
     <div class="row g-3 mb-3">
         <div class="col-6 col-lg-3">
             <div class="stat-card">
@@ -89,5 +91,4 @@
         </div>
         <?php endif; ?>
     </div>
-
 </div>

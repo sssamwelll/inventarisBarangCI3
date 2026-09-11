@@ -1,4 +1,7 @@
 <div class="topbar">
+    <button type="button" id="btn-sidebar-toggle" class="btn d-md-none me-3" style="background:none; border:none; padding:0; color:var(--ink); font-size:20px;">
+        <i class="fa-solid fa-bars"></i>
+    </button>
     <div>
         <h1>Riwayat Absensi</h1>
         <span class="topbar-date">Rekap kehadiran &amp; lembur per periode</span>
@@ -74,9 +77,9 @@
                             ?>
                             <span class="badge-status <?= $badge_class ?>"><?= ucfirst($r->status) ?></span>
                         </td>
-                        <td class="figure"><?= $r->jam_masuk ? substr($r->jam_masuk, 0, 5) : '-' ?></td>
-                        <td class="figure"><?= $r->jam_pulang ? substr($r->jam_pulang, 0, 5) : '-' ?></td>
-                        <td class="text-end figure"><?= $r->jam_lembur > 0 ? angka($r->jam_lembur, 2) . ' jam' : '-' ?></td>
+                        <td class="money"><?= $r->jam_masuk ? substr($r->jam_masuk, 0, 5) : '-' ?></td>
+                        <td class="money"><?= $r->jam_pulang ? substr($r->jam_pulang, 0, 5) : '-' ?></td>
+                        <td class="text-end money"><?= $r->jam_lembur > 0 ? angka($r->jam_lembur, 2) . ' jam' : '-' ?></td>
                         <td style="font-size:12.5px; color:var(--steel);"><?= html_escape($r->keterangan) ?></td>
                     </tr>
                 <?php endforeach; ?>
