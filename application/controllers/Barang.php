@@ -16,7 +16,7 @@ class Barang extends MY_Controller
     {
         $this->load->library('pagination');
 
-        $per_page = 5;
+        $per_page = 8;
         $halaman = max(1, (int) $this->input->get('halaman'));
         $offset = ($halaman - 1) * $per_page;
 

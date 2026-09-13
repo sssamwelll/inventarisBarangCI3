@@ -16,7 +16,7 @@ class Transaksi extends MY_Controller
     {
         $this->load->library('pagination');
 
-        $per_page = 10;
+        $per_page = 8;
         $halaman = max(1, (int) $this->input->get('halaman'));
         $offset = ($halaman - 1) * $per_page;
         
@@ -98,27 +98,34 @@ class Transaksi extends MY_Controller
             ->set_output(json_encode($response));
     }
 
-    public function simpan()
-    {
+    private function respond_gagal($message) {
+        if ($this->input->is_ajax_request()) {
+            $this->output
+                ->set_content_type('application/json')
+                ->set_status_header(422)
+                ->set_output(json_encode(array('success' => false, 'message' => $message)));
+            return;
+        }
+
+        $this->session->set_flashdata('error', $message);
+        $this->tambah();
+    }
+
+    public function simpan() {
         $this->form_validation->set_rules('tipe', 'Tipe transaksi', 'required|in_list[beli,jual]');
         $this->form_validation->set_rules('nama_pihak', 'Nama pihak', 'required|trim');
         $this->form_validation->set_rules('status_bayar', 'Status bayar', 'required|in_list[lunas,hutang,piutang]');
         $this->form_validation->set_rules('no_hp', 'No HP', 'trim|max_length[20]');
+        $this->form_validation->set_rules('potongan', 'Potongan', 'numeric|greater_than_equal_to[0]');
 
         if (!$this->form_validation->run()) {
-            return $this->tambah();
+            return $this->respond_gagal(implode('<br>', $this->form_validation->error_array()));
         }
 
         $item_error = '';
         $items = $this->collect_items($item_error);
         if (empty($items)) {
-            if ($item_error !== '') {
-                $this->session->set_flashdata('error', $item_error);
-            }
-            else {
-                $this->session->set_flashdata('error', 'Minimal satu barang harus diisi.');
-            }
-            return $this->tambah();
+            return $this->respond_gagal($item_error !== '' ? $item_error : 'Minimal satu barang harus diisi.');
         }
 
         $header = array(
@@ -132,16 +139,25 @@ class Transaksi extends MY_Controller
 
         $result = $this->Transaksi_model->save_transaksi($header, $items);
         if (!$result['success']) {
-            $this->session->set_flashdata('error', $result['message']);
-            return $this->tambah();
+            return $this->respond_gagal($result['message']);
+        }
+
+        if ($this->input->is_ajax_request()) {
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode(array(
+                    'success' => true,
+                    'no_nota' => $result['no_nota'],
+                    'cetak_url' => base_url('transaksi/cetak/' . $result['transaksi_id']),
+                )));
+            return;
         }
 
         $this->session->set_flashdata('success', 'Transaksi ' . $result['no_nota'] . ' berhasil disimpan.');
-        redirect('Transaksi/cetak/' . $result['transaksi_id']);
+        redirect('transaksi/cetak/' . $result['transaksi_id']);
     }
 
-    private function build_form_rows()
-    {
+    private function build_form_rows() {
         $barang_ids = (array) $this->input->post('barang_id');
         $qtys = (array) $this->input->post('qty');
         $harga_satuans = (array) $this->input->post('harga_satuan');

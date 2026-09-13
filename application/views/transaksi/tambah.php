@@ -12,6 +12,8 @@
 </div>
 
 <div class="content-area">
+    <div id="area-notifikasi"></div>
+
     <?php if (validation_errors()): ?>
         <div class="alert alert-danger border-0">
             <?= validation_errors() ?>
@@ -24,7 +26,7 @@
         </div>
     <?php endif; ?>
 
-    <form action="<?= base_url('Transaksi/simpan') ?>" method="post" id="form-transaksi" target="_blank">
+    <form action="<?= base_url('Transaksi/simpan') ?>" method="post" id="form-transaksi">
         <div class="row g-3">
             <div class="col-lg-5">
                 <div class="panel h-100">
@@ -277,6 +279,7 @@
     </form>
 </div>
 
+
 <template id="template-baris-detail">
     <tr class="detail-row">
         <td>
@@ -316,6 +319,8 @@
     </tr>
 </template>
 
+<script src="<?= base_url('assets/js/script.js')?>"></script>
+
 <!-- Daftar Barang --- Searcnign-->
 <script>
     var DAFTAR_BARANG = [
@@ -330,172 +335,13 @@
         },
         <?php endforeach; ?>
     ];
+
+    var URL_TRANSAKSI_SIMPAN = '<?= base_url('Transaksi/simpan')?>';
+    var URL_TRANSAKSI_TAMBAH = '<?= base_url('Transaksi/tambah')?>';
+
 </script>
 
-<script>
-    $(function () {
-        var TABEL_DETAIL = document.getElementById('tabel-detail-transaksi');
-
-        function inisialisasiPencarianBarang(row) {
-            var searchInput = row.querySelector('.barang-search-input');
-            var selectAsli = row.querySelector('.barang-select');
-
-            if (!searchInput || !selectAsli || searchInput.dataset.acInit) {
-                return; // elemen tidak ada, atau sudah pernah di-init sebelumnya
-            }
-            searchInput.dataset.acInit = '1';
-
-            $(searchInput).autocomplete({
-                source: function (request, response) {
-                    var kata = request.term.toLowerCase();
-                    var hasil = DAFTAR_BARANG.filter(function (b) {
-                        return b.nama.toLowerCase().indexOf(kata) !== -1;
-                    });
-                    response(hasil.slice(0, 15));
-                },
-                minLength: 1,
-                select: function (event, ui) {
-                    selectAsli.value = ui.item.id;
-                    // Trigger event 'change' PERSIS seperti kalau admin pilih manual dari <select>,
-                    // supaya semua logika lama (isi harga, hitung subtotal, cek harga langganan)
-                    // tetap jalan tanpa perlu ditulis ulang di sini.
-                    selectAsli.dispatchEvent(new Event('change', { bubbles: true }));
-                    searchInput.value = ui.item.label;
-                    return false;
-                }
-            });
-
-            // Kalau baris ini sudah ada isinya (misal form gagal validasi & dirender ulang),
-            // sinkronkan teks pencarian dengan barang yang sudah kepilih sebelumnya.
-            if (selectAsli.value) {
-                var terpilih = DAFTAR_BARANG.find(function (b) {
-                    return String(b.id) === String(selectAsli.value);
-                });
-                if (terpilih) {
-                    searchInput.value = terpilih.label;
-                }
-            }
-        }
-
-        function inisialisasiSemuaBaris() {
-            TABEL_DETAIL.querySelectorAll('.detail-row').forEach(inisialisasiPencarianBarang);
-        }
-
-        inisialisasiSemuaBaris();
-
-        // Baris baru dari tombol "Tambah baris" otomatis ikut dapat fitur pencarian,
-        // tanpa perlu tahu/ubah kode yang bikin baris barunya.
-        new MutationObserver(inisialisasiSemuaBaris).observe(TABEL_DETAIL, {
-            childList: true,
-            subtree: true
-        });
-    });
-</script>
-
-<!-- Daftar Barang --- -->
-<script>
-    (function () {
-        var tableBody = document.querySelector('#tabel-detail-transaksi tbody');
-        var addRowButton = document.getElementById('btn-tambah-baris');
-        var typeSelect = document.getElementById('tipe-transaksi');
-        var template = document.getElementById('template-baris-detail');
-
-        function formatRupiah(number) {
-            var value = Number(number || 0);
-            return 'Rp ' + value.toLocaleString('id-ID', { maximumFractionDigits: 2 });
-        }
-
-        function getSelectedPrice(row) {
-            var select = row.querySelector('.barang-select');
-            var selected = select.options[select.selectedIndex];
-            if (!selected) {
-                return 0;
-            }
-
-            var hargaBeli = parseFloat(selected.dataset.hargaBeli || '0') || 0;
-            var hargaJual = parseFloat(selected.dataset.hargaJual || '0') || 0;
-            return typeSelect.value === 'jual' ? hargaJual : hargaBeli;
-        }
-
-        function recalculateRow(row) {
-            var qtyInput = row.querySelector('.qty-input');
-            var hargaInput = row.querySelector('.harga-input');
-            var subtotalOutput = row.querySelector('.subtotal-output');
-            var qty = parseFloat(qtyInput.value || '0') || 0;
-            var harga = parseFloat(hargaInput.value || '0') || 0;
-            var subtotal = qty * harga;
-
-            subtotalOutput.value = formatRupiah(subtotal);
-            return subtotal;
-        }
-
-        function recalculateAll() {
-            var total = 0;
-            tableBody.querySelectorAll('.detail-row').forEach(function (row) {
-                total += recalculateRow(row);
-            });
-
-            document.getElementById('grand-total').textContent = formatRupiah(total);
-            document.getElementById('tfoot-total').textContent = formatRupiah(total);
-        }
-
-        function bindRow(row) {
-            var select = row.querySelector('.barang-select');
-            var qtyInput = row.querySelector('.qty-input');
-            var hargaInput = row.querySelector('.harga-input');
-            var removeButton = row.querySelector('.btn-hapus-baris');
-
-            select.addEventListener('change', function () {
-                hargaInput.value = getSelectedPrice(row) || '';
-                recalculateAll();
-            });
-
-            qtyInput.addEventListener('input', recalculateAll);
-            hargaInput.addEventListener('input', recalculateAll);
-
-            removeButton.addEventListener('click', function () {
-                if (tableBody.querySelectorAll('.detail-row').length === 1) {
-                    select.value = '';
-                    qtyInput.value = '';
-                    hargaInput.value = '';
-                    recalculateAll();
-                    return;
-                }
-
-                row.remove();
-                recalculateAll();
-            });
-        }
-
-        function createRow() {
-            var row = template.content.firstElementChild.cloneNode(true);
-            bindRow(row);
-            return row;
-        }
-
-        addRowButton.addEventListener('click', function () {
-            tableBody.appendChild(createRow());
-        });
-
-        tableBody.querySelectorAll('.detail-row').forEach(function (row) {
-            bindRow(row);
-        });
-
-        typeSelect.addEventListener('change', function () {
-            tableBody.querySelectorAll('.detail-row').forEach(function (row) {
-                var select = row.querySelector('.barang-select');
-                var hargaInput = row.querySelector('.harga-input');
-                if (select.value) {
-                    hargaInput.value = getSelectedPrice(row) || hargaInput.value || '';
-                }
-            });
-            recalculateAll();
-        });
-
-        recalculateAll();
-    })();
-</script>
-
+<!-- AUTOCOMPLETE NAMA PIHAKA -->
 <script>
     $(function () {
         var TIPE_SELECT = document.getElementById('tipe-transaksi');
@@ -573,81 +419,4 @@
 
         NAMA_PIHAK_INPUT.addEventListener('blur', cekHargaSemuaBaris);
     });
-</script>
-
-<script>
-    (function () {
-        var inputPotongan = document.getElementById('input-potongan');
-        var elGrandTotal = document.getElementById('grand-total');
-        var elTampilPotongan = document.getElementById('tampil-potongan');
-        var elBarisPotongan = document.getElementById('baris-potongan');
-        var elTotalBersih = document.getElementById('total-bersih');
-
-        function formatRupiahSimple(n) {
-            return 'Rp ' + new Intl.NumberFormat('id-ID').format(Math.round(n));
-        }
-
-        // "Rp 12.345" -> 12345 (buang semua karakter selain digit)
-        function parseRupiahText(text) {
-            var digits = (text || '').replace(/[^0-9]/g, '');
-            return digits ? parseInt(digits, 10) : 0;
-        }
-
-        function perbaruiTotalBersih() {
-            var totalBarang = parseRupiahText(elGrandTotal.textContent);
-            var potongan = parseFloat(inputPotongan.value) || 0;
-
-            if (potongan > totalBarang) {
-                potongan = totalBarang; // tidak boleh sampai minus
-            }
-
-            var bersih = totalBarang - potongan;
-
-            elTampilPotongan.textContent = '- ' + formatRupiahSimple(potongan);
-            elBarisPotongan.style.display = potongan > 0 ? 'flex' : 'none';
-            elTotalBersih.textContent = formatRupiahSimple(bersih);
-        }
-
-        inputPotongan.addEventListener('input', perbaruiTotalBersih);
-
-        // "Total barang" (grand-total) diisi oleh script lama Anda (recalculateAll()) setiap
-        // baris barang berubah. Daripada mengubah kode lama, kita "pantau" perubahan teksnya
-        // pakai MutationObserver, lalu hitung ulang total bersih otomatis.
-        new MutationObserver(perbaruiTotalBersih).observe(elGrandTotal, {
-            childList: true,
-            characterData: true,
-            subtree: true
-        });
-
-        perbaruiTotalBersih();
-    })();
-</script>
-
-<!-- Script Cegat DOM enrter -->
-<script>
-    (function () {
-        var form = document.getElementById('form-transaksi');
-
-        form.addEventListener('keydown', function (e) {
-            if (e.key !== 'Enter') {
-                return;
-            }
-
-            // Kalau Enter ini sudah ditangani duluan sama widget lain (misal jQuery UI
-            // autocomplete lagi milih salah satu saran dari dropdown), biarkan -- jangan diganggu.
-            if (e.defaultPrevented) {
-                return;
-            }
-
-            // Enter di tombol/link tetap boleh jalan normal (misal tombol "Tambah baris").
-            if (e.target.tagName === 'BUTTON' || e.target.tagName === 'A') {
-                return;
-            }
-
-            e.preventDefault();
-
-            var modalNota = bootstrap.Modal.getOrCreateInstance(document.getElementById('modalNota'));
-            modalNota.show();
-        });
-    })();
 </script>

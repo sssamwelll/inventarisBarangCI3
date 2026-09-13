@@ -13,14 +13,16 @@
 
 <div class="content-area">
     <?php if ($this->session->flashdata('success')): ?>
-        <div class="alert alert-success border-0">
+        <div class="alert alert-success alert-dismissible fade show border-0" role="alert">
             <?= html_escape($this->session->flashdata('success')) ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     <?php endif; ?>
 
     <?php if ($this->session->flashdata('error')): ?>
-        <div class="alert alert-danger border-0">
+        <div class="alert alert-danger alert-dismissible fade show border-0">
             <?= $this->session->flashdata('error') ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     <?php endif; ?>
 
@@ -100,7 +102,7 @@
                 <h5 class="modal-title fw-semibold" id="modalBarangTitle" style="font-size: 15px;">Tambah Barang Baru</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="<?= base_url('barang/simpan') ?>" method="post">
+            <form action="<?= base_url('Barang/simpan') ?>" method="post">
                 <div class="modal-body" style="background-color: var(--paper);">
                     <!-- Hidden ID untuk Edit -->
                     <input type="hidden" name="id" id="form-id">
