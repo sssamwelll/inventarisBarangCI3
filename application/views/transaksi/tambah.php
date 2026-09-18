@@ -3,7 +3,7 @@
         <i class="fa-solid fa-bars"></i>
     </button>
     <div>
-        <h1>Transaksi Baru</h1>
+        <h1><?= $is_edit ? 'Edit Transaksi' : 'Transaksi Baru' ?></h1>
         <span class="topbar-date">Isi barang, harga, lalu simpan nota</span>
     </div>
     <a href="<?= base_url('transaksi') ?>" class="btn btn-outline-secondary btn-sm">
@@ -26,7 +26,7 @@
         </div>
     <?php endif; ?>
 
-    <form action="<?= base_url('Transaksi/simpan') ?>" method="post" id="form-transaksi">
+    <form action="<?= $is_edit ? base_url('Transaksi/update/' . $transaksi_id) : base_url('Transaksi/simpan') ?>" method="get" id="form-transaksi">
         <div class="row g-3">
             <div class="col-lg-5">
                 <div class="panel h-100">
@@ -35,29 +35,28 @@
                     </div>
                     <div class="p-3 p-lg-4">
                         <div class="mb-3">
-                            <label class="form-label">Tipe transaksi</label>
-                            <select name="tipe" id="tipe-transaksi" class="form-select" data-autofocus>
-                                <option value="beli" <?= set_select('tipe', 'beli', true) ?>>Beli</option>
-                                <option value="jual" <?= set_select('tipe', 'jual') ?>>Jual</option>
-                            </select>
+                            <label class="form-label">Tipe transaksi :</label>
+                            <input type="radio" id="tipe-transaksi-beli" name="tipe" value="beli" <?= set_radio('tipe', 'beli', !$is_edit || $transaksi->tipe === 'beli') ?>> Beli
+                            <input type="radio" id="tipe-transaksi-jual" name="tipe" value="jual" <?= set_radio('tipe', 'jual', $is_edit && $transaksi->tipe === 'jual') ?>> Jual
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Nama pihak</label>
-                            <input type="text" name="nama_pihak" id="input-nama-pihak" class="form-control" value="<?= set_value('nama_pihak') ?>" placeholder="Nama penjual / pembeli" autocomplete="off">
+                            <input type="text" name="nama_pihak" id="input-nama-pihak" class="form-control" value="<?= set_value('nama_pihak', $is_edit ? $transaksi->nama_pihak : '') ?>" placeholder="Nama penjual / pembeli" autocomplete="off">
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">No HP</label>
-                            <input type="text" name="no_hp" class="form-control" value="<?= set_value('no_hp') ?>" placeholder="Opsional">
+                            <input type="text" name="no_hp" class="form-control" value="<?= set_value('no_hp', $is_edit ? $transaksi->no_hp : '') ?>" placeholder="Opsional">
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Status bayar</label>
                             <select name="status_bayar" class="form-select">
-                                <option value="lunas" <?= set_select('status_bayar', 'lunas', true) ?>>Lunas</option>
-                                <option value="hutang" <?= set_select('status_bayar', 'hutang') ?>>Hutang</option>
-                                <option value="piutang" <?= set_select('status_bayar', 'piutang') ?>>Piutang</option>
+                                <?php $status_terpilih = set_value('status_bayar', $is_edit ? $transaksi->status_bayar : 'lunas'); ?>
+                                <option value="lunas" <?= $status_terpilih === 'lunas' ? 'selected' : '' ?>>Lunas</option>
+                                <option value="hutang" <?= $status_terpilih === 'hutang' ? 'selected' : '' ?>>Hutang</option>
+                                <option value="piutang" <?= $status_terpilih === 'piutang' ? 'selected' : '' ?>>Piutang</option>
                             </select>
                         </div>
 
@@ -65,14 +64,14 @@
                             <label class="form-label">Potongan <span class="text-muted">(opsional)</span></label>
                             <div class="input-group">
                                 <span class="input-group-text bg-white" style="font-family: var(--font-mono);">Rp</span>
-                                <input type="number" name="potongan" id="input-potongan" class="form-control figure" min="0" value="<?= set_value('potongan', '0') ?>" placeholder="0">
+                                <input type="number" name="potongan" id="input-potongan" class="form-control figure" min="0" value="<?= set_value('potongan', $is_edit ? $transaksi->potongan : '0') ?>" placeholder="0">
                             </div>
                             <div class="form-text" style="font-size:11px;">Misalnya untuk memotong bon/pinjaman lama pihak ini dari uang yang dibayarkan di transaksi ini.</div>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Catatan potongan <span class="text-muted">(opsional)</span></label>
-                            <input type="text" name="catatan_potongan" class="form-control" value="<?= set_value('catatan_potongan') ?>" placeholder="Mis. Potong bon tanggal 10 Agustus">
+                            <input type="text" name="catatan_potongan" class="form-control" value="<?= set_value('catatan_potongan', $is_edit ? $transaksi->catatan_potongan : '') ?>" placeholder="Mis. Potong bon tanggal 10 Agustus">
                         </div>
 
                         <div class="alert alert-light border mb-0">
@@ -222,7 +221,7 @@
                         </button>
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn btn-rust px-4">
-                                <i class="bi bi-check2-circle me-1"></i> Simpan Transaksi
+                                <i class="bi bi-check2-circle me-1"></i> <?= $is_edit ? 'Simpan Perubahan' : 'Simpan Transaksi' ?>
                             </button>
                         </div>
                     </div>
@@ -279,7 +278,6 @@
     </form>
 </div>
 
-
 <template id="template-baris-detail">
     <tr class="detail-row">
         <td>
@@ -319,8 +317,6 @@
     </tr>
 </template>
 
-<script src="<?= base_url('assets/js/script.js')?>"></script>
-
 <!-- Daftar Barang --- Searcnign-->
 <script>
     var DAFTAR_BARANG = [
@@ -336,19 +332,21 @@
         <?php endforeach; ?>
     ];
 
-    var URL_TRANSAKSI_SIMPAN = '<?= base_url('Transaksi/simpan')?>';
-    var URL_TRANSAKSI_TAMBAH = '<?= base_url('Transaksi/tambah')?>';
-
+    var URL_TRANSAKSI_SIMPAN = '<?= $is_edit ? site_url('Transaksi/update/' . $transaksi_id) : site_url('Transaksi/simpan') ?>';
+    var URL_SETELAH_SUKSES = '<?= $is_edit ? site_url('transaksi') : site_url('transaksi/tambah') ?>';
 </script>
 
 <!-- AUTOCOMPLETE NAMA PIHAKA -->
 <script>
     $(function () {
-        var TIPE_SELECT = document.getElementById('tipe-transaksi');
+        function getTipeValue() {
+            var checked = document.querySelector('input[name="tipe"]:checked');
+            return checked ? checked.value : 'beli';
+        }
         var NAMA_PIHAK_INPUT = document.getElementById('input-nama-pihak');
         var TABEL_DETAIL = document.getElementById('tabel-detail-transaksi');
-        var URL_CARI_NAMA = '<?= base_url("transaksi/cari_nama_pihak") ?>';
-        var URL_CEK_HARGA = '<?= base_url("transaksi/cek_harga_langganan") ?>';
+        var URL_CARI_NAMA = '<?= site_url("Transaksi/cari_nama_pihak") ?>';
+        var URL_CEK_HARGA = '<?= site_url("Transaksi/cek_harga_langganan") ?>';
 
         // Autocomplete nama pihak dari riwayat transaksi sebelumnya.
         $(NAMA_PIHAK_INPUT).autocomplete({
@@ -392,7 +390,7 @@
             $.getJSON(URL_CEK_HARGA, {
                 nama_pihak: namaPihak,
                 barang_id: barangId,
-                tipe: TIPE_SELECT.value
+                tipe: getTipeValue()
             }, function (res) {
                 if (res && res.ada) {
                     hargaInput.value = Math.round(res.harga_satuan);

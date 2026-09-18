@@ -56,7 +56,7 @@
             </div>
         <?php endif; ?>
         
-        <form action="<?= base_url('auth/process') ?>" method="POST">
+        <form action="<?= base_url('Auth/process') ?>" method="POST">
             <div class="mb-3">
                 <label class="form-label text-muted" style="font-size: 12px; font-weight: 500;">Username</label>
                 <input type="text" name="username" class="form-control form-control-lg" style="font-size: 14px;" required autofocus autocomplete="off">

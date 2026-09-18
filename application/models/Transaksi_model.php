@@ -236,4 +236,208 @@ class Transaksi_model extends CI_Model
             'total_bayar' => $total_bayar,
         );
     }
+
+    public function get_transaksi_untuk_edit($id) {
+        $transaksi = $this->get_transaksi_by_id($id);
+        if (!$transaksi) {
+            return null;
+        }
+        return array('header' => $transaksi, 'detail' => $this->get_transaksi_detail($id));
+    }
+
+    /**
+     * Update transaksi yang sudah ada. Beda dengan save_transaksi() (insert baru),
+     * ini harus BALIK dulu efek stok+kas dari data lama, baru terapkan efek dari data baru --
+     * supaya stok & kas tidak jadi dobel/salah hitung.
+     */
+    public function update_transaksi($id, array $header, array $items) {
+        $transaksi_lama = $this->get_transaksi_by_id($id);
+        if (!$transaksi_lama) {
+            return array('success' => false, 'message' => 'Transaksi tidak ditemukan.');
+        }
+        if (empty($items)) {
+            return array('success' => false, 'message' => 'Transaksi harus memiliki minimal satu item.');
+        }
+
+        $tipe_baru = isset($header['tipe']) ? $header['tipe'] : '';
+        $status_bayar = isset($header['status_bayar']) ? $header['status_bayar'] : 'lunas';
+        $nama_pihak = isset($header['nama_pihak']) ? trim((string) $header['nama_pihak']) : '';
+        $no_hp = isset($header['no_hp']) ? trim((string) $header['no_hp']) : null;
+        $potongan_input = isset($header['potongan']) ? (float) $header['potongan'] : 0;
+        $catatan_potongan = isset($header['catatan_potongan']) ? trim((string) $header['catatan_potongan']) : '';
+
+        if ($potongan_input < 0) {
+            $potongan_input = 0;
+        }
+        if ($nama_pihak === '') {
+            return array('success' => false, 'message' => 'Nama pihak wajib diisi.');
+        }
+
+        $user_id = (int) $this->session->userdata('user_id');
+        if ($user_id <= 0) {
+            return array('success' => false, 'message' => 'Sesi login belum tersedia. Silakan login ulang.');
+        }
+
+        $detail_lama = $this->get_transaksi_detail($id);
+
+        $this->db->trans_begin();
+
+        // 1) Balik efek stok dari data LAMA
+        foreach ($detail_lama as $d) {
+            if ($transaksi_lama->tipe === 'beli') {
+                $barang = $this->db->where('id', $d->barang_id)->get('barang')->row();
+                if ($barang && (float) $barang->stok - (float) $d->qty < 0) {
+                    $this->db->trans_rollback();
+                    return array('success' => false, 'message' => 'Tidak bisa diedit: stok barang "' . $barang->nama_barang . '" sudah terpakai di transaksi lain, membalik transaksi ini akan membuat stok minus.');
+                }
+                $this->db->set('stok', 'stok - ' . (float) $d->qty, false)->where('id', $d->barang_id)->update('barang');
+            } else {
+                $this->db->set('stok', 'stok + ' . (float) $d->qty, false)->where('id', $d->barang_id)->update('barang');
+            }
+        }
+
+        // 2) Hapus entri kas lama yang nempel ke transaksi ini
+        $this->db->where('ref_id', $id)->where('ref_type', 'transaksi')->delete('kas');
+
+        // 3) Hapus detail lama
+        $this->db->where('transaksi_id', $id)->delete('transaksi_detail');
+
+        // 4) Validasi & hitung ulang item BARU (logikanya sama seperti save_transaksi)
+        $total = 0;
+        $normalized_items = array();
+
+        foreach ($items as $item) {
+            $barang_id = isset($item['barang_id']) ? (int) $item['barang_id'] : 0;
+            $qty = isset($item['qty']) ? (float) $item['qty'] : 0;
+            $harga_satuan = isset($item['harga_satuan']) ? (float) $item['harga_satuan'] : 0;
+
+            if ($barang_id <= 0 || $qty <= 0) {
+                $this->db->trans_rollback();
+                return array('success' => false, 'message' => 'Item transaksi belum lengkap.');
+            }
+
+            $barang = $this->db->where('id', $barang_id)->where('is_aktif', 1)->get('barang')->row();
+            if (!$barang) {
+                $this->db->trans_rollback();
+                return array('success' => false, 'message' => 'Barang dengan ID ' . $barang_id . ' tidak ditemukan atau tidak aktif.');
+            }
+
+            if ($harga_satuan <= 0) {
+                $harga_satuan = $tipe_baru === 'beli' ? (float) $barang->harga_beli : (float) $barang->harga_jual;
+            }
+            if ($harga_satuan <= 0) {
+                $this->db->trans_rollback();
+                return array('success' => false, 'message' => 'Harga untuk barang ' . $barang->nama_barang . ' belum tersedia.');
+            }
+
+            if ($tipe_baru === 'jual' && (float) $barang->stok < $qty) {
+                $this->db->trans_rollback();
+                return array('success' => false, 'message' => 'Stok barang ' . $barang->nama_barang . ' tidak cukup.');
+            }
+
+            $subtotal = $qty * $harga_satuan;
+            $total += $subtotal;
+
+            $normalized_items[] = array(
+                'barang_id' => $barang_id, 'qty' => $qty,
+                'harga_satuan' => $harga_satuan, 'subtotal' => $subtotal,
+            );
+        }
+
+        $potongan = min($potongan_input, $total);
+        $total_bayar = $total - $potongan;
+
+        // 5) Update header (no_nota & tanggal ASLI tetap dipertahankan)
+        $this->db->where('id', $id)->update('transaksi', array(
+            'tipe' => $tipe_baru,
+            'nama_pihak' => $nama_pihak,
+            'no_hp' => $no_hp !== '' ? $no_hp : null,
+            'status_bayar' => $status_bayar,
+            'total' => $total,
+            'potongan' => $potongan,
+            'catatan_potongan' => $catatan_potongan !== '' ? $catatan_potongan : null,
+        ));
+
+        // 6) Insert detail baru + terapkan efek stok baru
+        foreach ($normalized_items as $item) {
+            $this->db->insert('transaksi_detail', array(
+                'transaksi_id' => $id, 'barang_id' => $item['barang_id'],
+                'qty' => $item['qty'], 'harga_satuan' => $item['harga_satuan'], 'subtotal' => $item['subtotal'],
+            ));
+
+            if ($tipe_baru === 'beli') {
+                $this->db->set('stok', 'stok + ' . $item['qty'], false)->where('id', $item['barang_id'])->update('barang');
+            } else {
+                $this->db->set('stok', 'stok - ' . $item['qty'], false)->where('id', $item['barang_id'])->update('barang');
+            }
+        }
+
+        // 7) Buat ulang entri kas kalau lunas
+        if ($status_bayar === 'lunas') {
+            $kas_tipe = $tipe_baru === 'beli' ? 'keluar' : 'masuk';
+            $keterangan = 'Transaksi ' . $tipe_baru . ' ' . $transaksi_lama->no_nota . ' (diedit)';
+            if ($potongan > 0) {
+                $keterangan .= ' (setelah potongan Rp ' . number_format($potongan, 0, ',', '.') . ')';
+            }
+
+            $this->db->insert('kas', array(
+                'tanggal' => date('Y-m-d'), 'tipe' => $kas_tipe, 'kategori' => 'transaksi',
+                'keterangan' => $keterangan, 'jumlah' => $total_bayar,
+                'ref_id' => $id, 'ref_type' => 'transaksi', 'user_id' => $user_id,
+            ));
+        }
+
+        if ($this->db->trans_status() === false) {
+            $this->db->trans_rollback();
+            return array('success' => false, 'message' => 'Transaksi gagal diperbarui. Silakan coba lagi.');
+        }
+
+        $this->db->trans_commit();
+
+        return array(
+            'success' => true, 'transaksi_id' => $id, 'no_nota' => $transaksi_lama->no_nota,
+            'total' => $total, 'potongan' => $potongan, 'total_bayar' => $total_bayar,
+        );
+    }
+
+    /**
+     * Hapus transaksi: balik efek stok, hapus kas terkait, hapus detail, baru hapus header.
+     */
+    public function hapus_transaksi($id)
+    {
+        $transaksi = $this->get_transaksi_by_id($id);
+        if (!$transaksi) {
+            return array('success' => false, 'message' => 'Transaksi tidak ditemukan.');
+        }
+
+        $detail = $this->get_transaksi_detail($id);
+
+        $this->db->trans_begin();
+
+        foreach ($detail as $d) {
+            if ($transaksi->tipe === 'beli') {
+                $barang = $this->db->where('id', $d->barang_id)->get('barang')->row();
+                if ($barang && (float) $barang->stok - (float) $d->qty < 0) {
+                    $this->db->trans_rollback();
+                    return array('success' => false, 'message' => 'Tidak bisa dihapus: stok barang "' . $barang->nama_barang . '" sudah terpakai di transaksi lain, menghapus transaksi ini akan membuat stok minus.');
+                }
+                $this->db->set('stok', 'stok - ' . (float) $d->qty, false)->where('id', $d->barang_id)->update('barang');
+            } else {
+                $this->db->set('stok', 'stok + ' . (float) $d->qty, false)->where('id', $d->barang_id)->update('barang');
+            }
+        }
+
+        $this->db->where('ref_id', $id)->where('ref_type', 'transaksi')->delete('kas');
+        $this->db->where('transaksi_id', $id)->delete('transaksi_detail');
+        $this->db->where('id', $id)->delete('transaksi');
+
+        if ($this->db->trans_status() === false) {
+            $this->db->trans_rollback();
+            return array('success' => false, 'message' => 'Transaksi gagal dihapus. Silakan coba lagi.');
+        }
+
+        $this->db->trans_commit();
+
+        return array('success' => true, 'no_nota' => $transaksi->no_nota);
+    }
 }

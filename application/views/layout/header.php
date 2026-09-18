@@ -11,9 +11,9 @@
 
     <link rel="stylesheet" href="<?= base_url('assets/vendor/bootstrap538/css/bootstrap.min.css') ?>">
     <link rel="stylesheet" href="<?= base_url('assets/vendor/fontawesome/css/all.min.css') ?>">
+    <link rel="stylesheet" href="<?= base_url('assets/vendor/jquery/jquery-ui.css') ?>">
     <link rel="stylesheet" href="<?= base_url('assets/css/app.css') ?>">
-    <script src="<?= base_url('assets/vendor/jquery/jquery-3.6.0.min.js')?>"></script>
-    <script src="<?= base_url('assets/vendor/bootstrap538/js/bootstrap.bundle.min.js')?>"></script>
-    <script src="<?= base_url('assets/js/script.js')?>"></script>
+    <script src="<?= base_url('assets/vendor/jquery/jquery-3.6.0.min.js') ?>"></script>
+    <script src="<?= base_url('assets/vendor/jquery/jquery-ui.min.js') ?>"></script>
 </head>
 <body>

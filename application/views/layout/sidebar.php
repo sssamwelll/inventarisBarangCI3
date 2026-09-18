@@ -40,6 +40,13 @@ function menu_active($current, $key) {
         <a href="<?= base_url('laporan') ?>" class="nav-link <?= menu_active($active_menu, 'laporan') ?>" accesskey="8">
             <i class="fa-solid fa-chart-column"></i> Laporan <span class="nav-key">alt+8</span>
         </a>
+
+        <?php if ($this->session->userdata('role') === 'it_admin'): ?>
+            <div class="nav-section-label">Administrasi</div>
+            <a href="<?= base_url('pengguna') ?>" class="nav-link <?= menu_active($active_menu, 'pengguna') ?>">
+                <i class="fa-solid fa-user-shield"></i> Kelola Pengguna
+            </a>
+        <?php endif; ?>
     </nav>
 
     <div class="sidebar-footer">

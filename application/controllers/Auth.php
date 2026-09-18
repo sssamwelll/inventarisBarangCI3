@@ -25,11 +25,11 @@ class Auth extends CI_Controller {
     //     $hash = password_hash($password, PASSWORD_DEFAULT);
 
     //     $data_daftar = [
-    //         'id' => 223240041,
+    //         'id' => 223240052,
     //         'username' => $username,
     //         'password' => $hash,
-    //         'nama' => 'Kristina',
-    //         'role' => 'admin'
+    //         'nama' => 'Sammwell',
+    //         'role' => 'it_admin'
     //     ];
 
     //     $this->User_model->simpan_user($data_daftar);
@@ -46,17 +46,25 @@ class Auth extends CI_Controller {
             // Verifikasi kecocokan hash password
             if (password_verify($password, $user->password)) {
                 
+                $this->load->model('Pengguna_model');
+                $permissions = array();
+                if ($user->role !== 'it_admin') {
+                    $permissions = $this->Pengguna_model->get_permission_map($user->id);
+                }
+
                 // Daftarkan session
                 $session_data = array(
-                    'user_id'   => $user->id,
-                    'username'  => $user->username,
-                    'nama'      => $user->nama,
-                    'role'      => $user->role,
+                    'user_id' => $user->id,
+                    'username' => $user->username,
+                    'nama' => $user->nama,
+                    'role' => $user->role,
+                    'permissions' => $permissions,
                     'logged_in' => TRUE
                 );
                 
                 $this->session->set_userdata($session_data);
-                redirect('Transaksi/tambah');
+                redirect('Dashboard');
+                // redirect('Transaksi/tambah');
                 
             } else {
                 $this->session->set_flashdata('error', 'Password yang Anda masukkan salah!');

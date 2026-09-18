@@ -8,6 +8,7 @@ class User_model extends CI_Model {
         return $this->db->get_where('users', ['username' => $username])->row();
     }
 
+    // SEMENTAR FOR DAFTAR
     // public function simpan_user($data) {
     //     return $this->db->insert('users', $data);
     // }

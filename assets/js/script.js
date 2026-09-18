@@ -62,7 +62,12 @@ $(function () {
 (function () {
     var tableBody = document.querySelector('#tabel-detail-transaksi tbody');
     var addRowButton = document.getElementById('btn-tambah-baris');
-    var typeSelect = document.getElementById('tipe-transaksi');
+
+    function getTipeValue() {
+        var checked = document.querySelector('input[name="tipe"]:checked');
+        return checked ? checked.value : 'beli';
+    }
+    
     var template = document.getElementById('template-baris-detail');
 
     function formatRupiah(number) {
@@ -79,7 +84,7 @@ $(function () {
 
         var hargaBeli = parseFloat(selected.dataset.hargaBeli || '0') || 0;
         var hargaJual = parseFloat(selected.dataset.hargaJual || '0') || 0;
-        return typeSelect.value === 'jual' ? hargaJual : hargaBeli;
+        return getTipeValue() === 'jual' ? hargaJual : hargaBeli;
     }
 
     function recalculateRow(row) {
@@ -146,15 +151,17 @@ $(function () {
         bindRow(row);
     });
 
-    typeSelect.addEventListener('change', function () {
-        tableBody.querySelectorAll('.detail-row').forEach(function (row) {
-            var select = row.querySelector('.barang-select');
-            var hargaInput = row.querySelector('.harga-input');
-            if (select.value) {
-                hargaInput.value = getSelectedPrice(row) || hargaInput.value || '';
-            }
+    document.querySelectorAll('input[name="tipe"]').forEach(function (radio) {
+        radio.addEventListener('change', function () {
+            tableBody.querySelectorAll('.detail-row').forEach(function (row) {
+                var select = row.querySelector('.barang-select');
+                var hargaInput = row.querySelector('.harga-input');
+                if (select.value) {
+                    hargaInput.value = getSelectedPrice(row) || hargaInput.value || '';
+                }
+            });
+            recalculateAll();
         });
-        recalculateAll();
     });
 
     recalculateAll();
@@ -279,7 +286,7 @@ $(function () {
             // Reload dari server -- cara paling aman untuk mengosongkan form + semua
             // baris dinamis + status autocomplete, tanpa perlu bongkar satu-satu
             // logika createRow()/bindRow() yang sudah ada.
-            window.location.href = URL_TRANSAKSI_TAMBAH;
+            window.location.href = URL_SETELAH_SUKSES;
         })
         .fail(function (xhr) {
             modalNota.hide();
