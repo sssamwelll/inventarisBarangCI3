@@ -6,9 +6,11 @@
         <h1>Dashboard</h1>
         <span class="topbar-date"><?= date('l, d F Y') ?></span>
     </div>
-    <a href="<?= base_url('Transaksi/tambah') ?>" id="btn-transaksi-baru" class="btn btn-rust">
-        <i class="fa-solid fa-plus"></i> Transaksi baru <kbd>n</kbd>
-    </a>
+    <?php if (has_akses('transaksi', 'create')): ?>
+        <a href="<?= base_url('Transaksi/tambah') ?>" id="btn-transaksi-baru" class="btn btn-rust">
+            <i class="fa-solid fa-plus"></i> Transaksi baru <kbd>n</kbd>
+        </a>
+    <?php endif;?>
 </div>
 
 <div class="content-area">

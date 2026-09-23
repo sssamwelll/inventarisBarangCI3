@@ -3,8 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Pengguna_model extends CI_Model
 {
-    public function get_all_users()
-    {
+    public function get_all_users() {
         return $this->db->order_by('role', 'ASC')->order_by('nama', 'ASC')->get('users')->result();
     }
 
@@ -13,23 +12,19 @@ class Pengguna_model extends CI_Model
         return $this->db->where('id', $id)->get('users')->row();
     }
 
-    public function get_by_username($username)
-    {
+    public function get_by_username($username) {
         return $this->db->where('username', $username)->get('users')->row();
     }
 
-    public function simpan_user($data)
-    {
+    public function simpan_user($data) {
         return $this->db->insert('users', $data);
     }
 
-    public function update_user($id, $data)
-    {
+    public function update_user($id, $data) {
         return $this->db->where('id', $id)->update('users', $data);
     }
 
-    public function hapus_user($id)
-    {
+    public function hapus_user($id) {
         // hak_akses ikut terhapus otomatis lewat FOREIGN KEY ... ON DELETE CASCADE
         return $this->db->where('id', $id)->delete('users');
     }
@@ -39,8 +34,7 @@ class Pengguna_model extends CI_Model
      * Ini format yang dipakai has_akses() lewat session, JANGAN diubah strukturnya
      * tanpa menyesuaikan juga akses_helper.php.
      */
-    public function get_permission_map($user_id)
-    {
+    public function get_permission_map($user_id) {
         $rows = $this->db->where('user_id', $user_id)->get('hak_akses')->result();
         $map = array();
 
@@ -49,6 +43,7 @@ class Pengguna_model extends CI_Model
                 'can_create' => (int) $r->can_create,
                 'can_read'   => (int) $r->can_read,
                 'can_update' => (int) $r->can_update,
+                'can_print' => (int) $r->can_print,
                 'can_delete' => (int) $r->can_delete,
             );
         }
@@ -68,7 +63,7 @@ class Pengguna_model extends CI_Model
 
         foreach (daftar_modul() as $kode => $nama) {
             $hasil[$kode] = isset($map[$kode]) ? $map[$kode] : array(
-                'can_create' => 0, 'can_read' => 0, 'can_update' => 0, 'can_delete' => 0,
+                'can_create' => 0, 'can_read' => 0, 'can_update' => 0, 'can_print' => 0, 'can_delete' => 0,
             );
         }
 
@@ -88,6 +83,7 @@ class Pengguna_model extends CI_Model
                 'can_create' => !empty($input['can_create']) ? 1 : 0,
                 'can_read'   => !empty($input['can_read']) ? 1 : 0,
                 'can_update' => !empty($input['can_update']) ? 1 : 0,
+                'can_print' => !empty($input['can_print']) ? 1 : 0,
                 'can_delete' => !empty($input['can_delete']) ? 1 : 0,
             );
 

@@ -67,17 +67,19 @@
                             <td><span class="badge-status badge-<?= $t->status_bayar ?>"><?= ucfirst($t->status_bayar) ?></span></td>
                             <td class="text-end money"><?= rupiah($t->total - $t->potongan) ?></td>
                             <td class="text-center">
-                                <a href="<?= base_url('transaksi/cetak/' . $t->id) ?>" class="btn btn-sm btn-outline-secondary py-1 px-2" target="_blank" title="Cetak nota">
-                                    <i class="fa-solid fa-print"></i>
-                                </a>
+                                <?php if (has_akses('transaksi', 'print')):?>
+                                    <a href="<?= base_url('Transaksi/cetak/' . $t->id) ?>" class="btn btn-sm btn-outline-secondary py-1 px-2" target="_blank" title="Cetak nota">
+                                        <i class="fa-solid fa-print"></i>
+                                    </a>
+                                <?php endif;?>
                                 <?php if (has_akses('transaksi', 'update')): ?>
-                                    <a href="<?= base_url('transaksi/edit/' . $t->id) ?>" class="btn btn-sm btn-outline-secondary py-1 px-2" title="Edit nota">
+                                    <a href="<?= base_url('Transaksi/edit/' . $t->id) ?>" class="btn btn-sm btn-outline-secondary py-1 px-2" title="Edit nota">
                                         <i class="fa-solid fa-pen"></i>
                                     </a>
                                 <?php endif; ?>
                                 <?php if (has_akses('transaksi', 'delete')): ?>
                                     <a href="<?= base_url('Transaksi/hapus/' . $t->id) ?>" class="btn btn-sm btn-outline-danger py-1 px-2 btn-delete-transaksi" title="Hapus nota"
-                                    data-delete-url="<?= base_url('transaksi/hapus/' . $t->id) ?>" data-no-nota="<?= html_escape($t->no_nota) ?>">
+                                    data-delete-url="<?= base_url('Transaksi/hapus/' . $t->id) ?>" data-no-nota="<?= html_escape($t->no_nota) ?>">
                                         <i class="fa-solid fa-trash"></i>
                                     </a>
                                 <?php endif; ?>

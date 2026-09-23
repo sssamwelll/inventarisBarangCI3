@@ -14,8 +14,7 @@ class Transaksi extends MY_Controller
         $this->load->library('form_validation');
     }
 
-    public function index()
-    {
+    public function index() {
         $this->load->library('pagination');
 
         $per_page = 8;
@@ -35,8 +34,7 @@ class Transaksi extends MY_Controller
         $this->render('transaksi/index', $data);
     }
 
-    public function cetak($id)
-    {
+    public function cetak($id) {
         $transaksi = $this->Transaksi_model->get_transaksi_by_id($id);
         if (!$transaksi) {
             show_404();
@@ -56,7 +54,7 @@ class Transaksi extends MY_Controller
 
     public function tambah()
     {
-        // cek_akses('transaksi', 'create');
+        cek_akses('transaksi', 'create');
         return $this->tampilkan_form();
 
         $this->render('transaksi/tambah', $data);
@@ -77,8 +75,7 @@ class Transaksi extends MY_Controller
             ->set_output(json_encode($daftar_nama));
     }
 
-     public function cek_harga_langganan()
-    {
+     public function cek_harga_langganan() {
         $nama_pihak = trim((string) $this->input->get('nama_pihak'));
         $barang_id = (int) $this->input->get('barang_id');
         $tipe = $this->input->get('tipe');
@@ -97,8 +94,7 @@ class Transaksi extends MY_Controller
             ->set_output(json_encode($response));
     }
 
-    public function edit($id)
-    {
+    public function edit($id) {
         cek_akses('transaksi', 'update');
 
         $transaksi = $this->Transaksi_model->get_transaksi_by_id($id);
@@ -115,8 +111,7 @@ class Transaksi extends MY_Controller
         return $this->tampilkan_form($transaksi, $form_rows);
     }
 
-    private function tampilkan_form($transaksi = null, $form_rows = null)
-    {
+    private function tampilkan_form($transaksi = null, $form_rows = null) {
         $data['page_title'] = $transaksi ? 'Edit Transaksi' : 'Transaksi Baru';
         $data['is_edit'] = (bool) $transaksi;
         $data['transaksi'] = $transaksi;
@@ -128,8 +123,7 @@ class Transaksi extends MY_Controller
         $this->render('transaksi/tambah', $data);
     }
 
-    private function respond_gagal($message, $render_ulang = null)
-    {
+    private function respond_gagal($message, $render_ulang = null) {
         if ($this->input->is_ajax_request()) {
             $this->output
                 ->set_content_type('application/json')
@@ -147,8 +141,7 @@ class Transaksi extends MY_Controller
         }
     }
 
-    public function simpan()
-    {
+    public function simpan() {
         cek_akses('transaksi', 'create');
 
         $this->form_validation->set_rules('tipe', 'Tipe transaksi', 'required|in_list[beli,jual]');
@@ -196,8 +189,7 @@ class Transaksi extends MY_Controller
         redirect('Transaksi/cetak/' . $result['transaksi_id']);
     }
 
-    public function update($id)
-    {
+    public function update($id) {
         cek_akses('transaksi', 'update');
 
         $this->form_validation->set_rules('tipe', 'Tipe transaksi', 'required|in_list[beli,jual]');
@@ -251,8 +243,7 @@ class Transaksi extends MY_Controller
         redirect('Transaksi/cetak/' . $id);
     }
 
-    public function hapus($id)
-    {
+    public function hapus($id) {
         cek_akses('transaksi', 'delete');
 
         $result = $this->Transaksi_model->hapus_transaksi($id);
@@ -270,8 +261,7 @@ class Transaksi extends MY_Controller
      * Endpoint AJAX untuk tombol expand di daftar transaksi -- kirim detail barang
      * cuma pas di-klik (bukan sekaligus semua saat halaman dimuat), supaya ringan.
      */
-    public function detail_ajax($id)
-    {
+    public function detail_ajax($id) {
         cek_akses('transaksi', 'read');
 
         $transaksi = $this->Transaksi_model->get_transaksi_by_id($id);
@@ -304,13 +294,11 @@ class Transaksi extends MY_Controller
             )));
     }
 
-    private function build_form_rows()
-    {
+    private function build_form_rows() {
         return array(array('barang_id' => '', 'qty' => '', 'harga_satuan' => ''));
     }
 
-    private function collect_items(&$error = '')
-    {
+    private function collect_items(&$error = '') {
         $barang_ids = (array) $this->input->post('barang_id');
         $qtys = (array) $this->input->post('qty');
         $harga_satuans = (array) $this->input->post('harga_satuan');

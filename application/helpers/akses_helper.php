@@ -7,8 +7,7 @@ if (!function_exists('daftar_modul')) {
      * setiap kali ada modul baru di aplikasi -- ini satu-satunya tempat yang
      * perlu diupdate, tidak perlu migrasi database lagi.
      */
-    function daftar_modul()
-    {
+    function daftar_modul() {
         return array(
             'transaksi' => 'Transaksi',
             'barang'=> 'Barang',
@@ -29,8 +28,7 @@ if (!function_exists('has_akses')) {
      * IT admin selalu TRUE untuk semua modul -- dialah yang mengatur orang lain,
      * jadi tidak perlu (dan tidak masuk akal) dibatasi oleh matrix yang sama.
      */
-    function has_akses($modul, $aksi)
-    {
+    function has_akses($modul, $aksi) {
         $CI = &get_instance();
 
         if ($CI->session->userdata('role') === 'it_admin') {

@@ -79,12 +79,12 @@ class Pengguna extends MY_Controller
     {
         if ((int) $id === (int) $this->session->userdata('user_id')) {
             $this->session->set_flashdata('error', 'Tidak bisa menghapus akun sendiri yang sedang login.');
-            redirect('pengguna');
+            redirect('Pengguna');
         }
 
         $this->Pengguna_model->hapus_user($id);
         $this->session->set_flashdata('success', 'Pengguna berhasil dihapus.');
-        redirect('pengguna');
+        redirect('Pengguna');
     }
 
     public function akses($id)

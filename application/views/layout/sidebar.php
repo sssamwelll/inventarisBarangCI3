@@ -15,9 +15,13 @@ function menu_active($current, $key) {
         <a href="<?= site_url('Dashboard') ?>" class="nav-link <?= menu_active($active_menu, 'dashboard') ?>" accesskey="1">
             <i class="fa-solid fa-gauge"></i> Dashboard <span class="nav-key">alt+1</span>
         </a>
-        <a href="<?= site_url('Transaksi') ?>" class="nav-link <?= menu_active($active_menu, 'transaksi') ?>" accesskey="2">
-            <i class="fa-solid fa-right-left"></i> Transaksi <span class="nav-key">alt+2</span>
-        </a>
+
+        <?php if (has_akses('transaksi', 'read')): ?>
+            <a href="<?= site_url('Transaksi') ?>" class="nav-link <?= menu_active($active_menu, 'transaksi') ?>" accesskey="2">
+                <i class="fa-solid fa-right-left"></i> Transaksi <span class="nav-key">alt+2</span>
+            </a>
+        <?php endif;?>
+
         <a href="<?= site_url('Barang') ?>" class="nav-link <?= menu_active($active_menu, 'barang') ?>" accesskey="3">
             <i class="fa-solid fa-boxes-stacked"></i> Barang <span class="nav-key">alt+3</span>
         </a>

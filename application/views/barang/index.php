@@ -70,10 +70,8 @@
                                             onclick="editBarang(<?= html_escape(json_encode($b)) ?>)">
                                         <i class="fa-solid fa-pen"></i>
                                     </button>
-                                    <a href="<?= base_url('Barang/hapus/' . $b->id) ?>" 
-                                       class="btn btn-sm btn-outline-danger py-1 px-2" 
-                                       title="Hapus Barang"
-                                       onclick="return confirm('Apakah Anda yakin ingin menghapus barang ini? Data stok dan nota tidak akan terpengaruh.')">
+                                    <a href="<?= base_url('Barang/hapus/' . $b->id) ?>" class="btn btn-sm btn-outline-danger py-1 px-2 btn-delete-barang" title="Hapus Barang"
+                                        data-delete-url="<?= base_url('Barang/hapus/' . $b->id) ?>" data-barang-name="<?= html_escape($b->nama_barang) ?>" data-barang-kategori="<?= html_escape($b->nama_kategori) ?>">
                                         <i class="fa-solid fa-trash"></i>
                                     </a>
                                 </td>
@@ -154,8 +152,76 @@
     </div>
 </div>
 
+<!-- Modal Delete Barang -->
+<div class="modal fade" id="modalDeleteBarang" tabindex="-1"
+     aria-labelledby="modalDeleteBarangLabel" aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content modal-delete">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalDeleteBarangLabel">
+                    <i class="fa-solid fa-trash-can me-2"></i>
+                    Hapus Barang
+                </h5>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+
+                <p class="mb-2">
+                    Apakah Anda yakin ingin menghapus barang:
+                </p>
+
+                <div class="delete-nota">
+                    <i class="fa-solid fa-box me-2"></i>
+
+                    <div>
+                        <strong id="deleteBarangName">-</strong>
+
+                        <div id="deleteBarangKategori"
+                             style="font-size:11px; opacity:.8;">
+                        </div>
+                    </div>
+                </div>
+
+                <small class="delete-warning">
+                    <i class="fa-solid fa-circle-exclamation me-1"></i>
+                    Data stok dan nota tidak akan terpengaruh.
+                </small>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button type="button"
+                        class="btn btn-light"
+                        data-bs-dismiss="modal">
+                    Batal
+                </button>
+
+                <a href="#"
+                   id="btn-confirm-delete-barang"
+                   class="btn btn-delete-confirm">
+                    <i class="fa-solid fa-trash me-1"></i>
+                    Hapus
+                </a>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
 <script>
-    var modalBarang = new bootstrap.Modal(document.getElementById('modalBarang'));
+    // var modalBarang = new bootstrap.Modal(document.getElementById('modalBarang'));
+    function getModalBarang() {
+        return bootstrap.Modal.getOrCreateInstance(document.getElementById('modalBarang'));
+    }
 
     function tambahBarang() {
         document.getElementById('modalBarangTitle').textContent = 'Tambah Barang Baru';
@@ -165,7 +231,7 @@
         document.getElementById('form-satuan').value = 'kg';
         document.getElementById('form-beli').value = '';
         document.getElementById('form-jual').value = '';
-        modalBarang.show();
+        getModalBarang().show();
     }
 
     function editBarang(data) {
@@ -176,6 +242,35 @@
         document.getElementById('form-satuan').value = data.satuan;
         document.getElementById('form-beli').value = Math.round(data.harga_beli);
         document.getElementById('form-jual').value = Math.round(data.harga_jual);
-        modalBarang.show();
+        getModalBarang().show();
     }
+
+    // Modal Delete Barang
+    document.addEventListener('click', function (e) {
+
+        const button = e.target.closest('.btn-delete-barang');
+
+        if (!button) {
+            return;
+        }
+
+        e.preventDefault();
+
+        const url = button.getAttribute('data-delete-url');
+        const nama = button.getAttribute('data-barang-name');
+        const kategori = button.getAttribute('data-barang-kategori');
+
+        document.getElementById('deleteBarangName').textContent = nama;
+        document.getElementById('deleteBarangKategori').textContent = kategori;
+
+        document
+            .getElementById('btn-confirm-delete-barang')
+            .setAttribute('href', url);
+
+        const modalElement = document.getElementById('modalDeleteBarang');
+
+        const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+
+        modal.show();
+    });
 </script>

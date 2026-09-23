@@ -3,7 +3,7 @@
         <h1>Hak Akses — <?= html_escape($user->nama) ?></h1>
         <span class="topbar-date">Centang aksi yang boleh dilakukan pengguna ini di tiap modul</span>
     </div>
-    <a href="<?= base_url('pengguna') ?>" class="btn btn-outline-secondary btn-sm">
+    <a href="<?= base_url('Pengguna') ?>" class="btn btn-outline-secondary btn-sm">
         <i class="fa-solid fa-arrow-left"></i> Kembali
     </a>
 </div>
@@ -28,6 +28,7 @@
                             <th class="text-center">Create<br><span style="font-weight:400; font-size:10.5px; color:var(--steel);">(tambah data)</span></th>
                             <th class="text-center">Read<br><span style="font-weight:400; font-size:10.5px; color:var(--steel);">(lihat/buka)</span></th>
                             <th class="text-center">Update<br><span style="font-weight:400; font-size:10.5px; color:var(--steel);">(ubah data)</span></th>
+                            <th class="text-center">Print<br><span style="font-weight:400; font-size:10.5px; color:var(--steel);">(print data)</span></th>
                             <th class="text-center">Delete<br><span style="font-weight:400; font-size:10.5px; color:var(--steel);">(hapus data)</span></th>
                         </tr>
                     </thead>
@@ -44,6 +45,9 @@
                             </td>
                             <td class="text-center">
                                 <input type="checkbox" class="form-check-input" name="akses[<?= $kode ?>][can_update]" value="1" <?= $a['can_update'] ? 'checked' : '' ?>>
+                            </td>
+                            <td class="text-center">
+                                <input type="checkbox" class="form-check-input" name="akses[<?= $kode ?>][can_print]" value="1" <?= $a['can_print'] ? 'checked' : '' ?>>
                             </td>
                             <td class="text-center">
                                 <input type="checkbox" class="form-check-input" name="akses[<?= $kode ?>][can_delete]" value="1" <?= $a['can_delete'] ? 'checked' : '' ?>>

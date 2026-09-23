@@ -21,6 +21,7 @@ class Dashboard extends MY_Controller
         $data['karyawan_hadir'] = $this->Dashboard_model->karyawan_hadir_hari_ini();
         $data['total_karyawan'] = $this->Dashboard_model->total_karyawan_aktif();
         $data['transaksi_terbaru'] = $this->Dashboard_model->transaksi_terbaru();
+        $data['page_title'] = 'Dashboard';
 
         $this->render('dashboard/index', $data);
     }
