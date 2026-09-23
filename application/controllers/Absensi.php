@@ -5,15 +5,17 @@ class Absensi extends MY_Controller
 {
     protected $active_menu = 'absensi';
 
-    public function __construct()
-    {
+    public function __construct() {
         parent::__construct();
+        // cek_akses('absensi', 'read');
+
         $this->load->model('Absensi_model');
         $this->load->model('Karyawan_model');
     }
 
-    public function index()
-    {
+    public function index() {
+        cek_akses('absensi', 'create');
+
         $tanggal = $this->input->get('tanggal') ?: date('Y-m-d');
 
         $data['page_title'] = 'Absensi';
@@ -23,8 +25,9 @@ class Absensi extends MY_Controller
         $this->render('absensi/index', $data);
     }
 
-    public function simpan()
-    {
+    public function simpan() {
+        cek_akses('absensi', 'create');
+
         $tanggal = $this->input->post('tanggal');
         $karyawan_ids = (array) $this->input->post('karyawan_id');
         $statuses = (array) $this->input->post('status');
@@ -54,8 +57,9 @@ class Absensi extends MY_Controller
         redirect('absensi?tanggal=' . $tanggal);
     }
 
-    public function riwayat()
-    {
+    public function riwayat() {
+        cek_akses('absensi', 'read');
+
         $filter = array(
             'tanggal_dari' => $this->input->get('tanggal_dari') ?: date('Y-m-01'),
             'tanggal_sampai' => $this->input->get('tanggal_sampai') ?: date('Y-m-d'),

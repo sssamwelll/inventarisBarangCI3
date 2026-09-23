@@ -22,20 +22,33 @@ function menu_active($current, $key) {
             </a>
         <?php endif;?>
 
-        <a href="<?= site_url('Barang') ?>" class="nav-link <?= menu_active($active_menu, 'barang') ?>" accesskey="3">
-            <i class="fa-solid fa-boxes-stacked"></i> Barang <span class="nav-key">alt+3</span>
-        </a>
+        <?php if (has_akses('barang', 'read')): ?>
+            <a href="<?= site_url('Barang') ?>" class="nav-link <?= menu_active($active_menu, 'barang') ?>" accesskey="3">
+                <i class="fa-solid fa-boxes-stacked"></i> Barang <span class="nav-key">alt+3</span>
+            </a>
+        <?php endif;?>
+
         <a href="<?= site_url('Kas') ?>" class="nav-link <?= menu_active($active_menu, 'kas') ?>" accesskey="4">
             <i class="fa-solid fa-wallet"></i> Kas <span class="nav-key">alt+4</span>
         </a>
 
         <div class="nav-section-label">Karyawan</div>
-        <a href="<?= base_url('karyawan') ?>" class="nav-link <?= menu_active($active_menu, 'karyawan') ?>" accesskey="5">
-            <i class="fa-solid fa-users"></i> Data karyawan <span class="nav-key">alt+5</span>
-        </a>
-        <a href="<?= base_url('absensi') ?>" class="nav-link <?= menu_active($active_menu, 'absensi') ?>" accesskey="6">
-            <i class="fa-solid fa-calendar-check"></i> Absensi &amp; lembur <span class="nav-key">alt+6</span>
-        </a>
+        <?php if (has_akses('karyawan', 'read')):?>
+            <a href="<?= base_url('Karyawan') ?>" class="nav-link <?= menu_active($active_menu, 'karyawan') ?>" accesskey="5">
+                <i class="fa-solid fa-users"></i> Data karyawan <span class="nav-key">alt+5</span>
+            </a>
+        <?php endif;?>
+
+        <?php if (has_akses('absensi', 'read')):?>
+            <a href="<?= base_url('Absensi/riwayat') ?>" class="nav-link <?= menu_active($active_menu, 'absensi') ?>" accesskey="6">
+                <i class="fa-solid fa-calendar-check"></i> Absensi &amp; lembur <span class="nav-key">alt+6</span>
+            </a>
+            <?php elseif (has_akses('absensi', 'create')): ?>
+                <a href="<?= base_url('Absensi') ?>" class="nav-link <?= menu_active($active_menu, 'absensi') ?>" accesskey="6">
+                    <i class="fa-solid fa-calendar-check"></i> Absensi &amp; lembur <span class="nav-key">alt+6</span>
+                </a>
+        <?php endif; ?>
+
         <a href="<?= base_url('gaji') ?>" class="nav-link <?= menu_active($active_menu, 'gaji') ?>" accesskey="7">
             <i class="fa-solid fa-money-check-dollar"></i> Penggajian <span class="nav-key">alt+7</span>
         </a>

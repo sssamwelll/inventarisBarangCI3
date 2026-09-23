@@ -6,9 +6,11 @@
         <h1>Absensi</h1>
         <span class="topbar-date">Input kehadiran harian — jam kerja 08:00–16:00</span>
     </div>
-    <a href="<?= base_url('absensi/riwayat') ?>" class="btn btn-outline-secondary btn-sm">
-        <i class="fa-solid fa-clock-rotate-left"></i> Riwayat absensi
-    </a>
+    <?php if (has_akses('absensi', 'read')):?>
+        <a href="<?= base_url('Absensi/riwayat') ?>" class="btn btn-outline-secondary btn-sm">
+            <i class="fa-solid fa-clock-rotate-left"></i> Riwayat absensi
+        </a>
+    <?php endif;?>
 </div>
 
 <div class="content-area">
@@ -103,9 +105,11 @@
             </div>
         </div>
 
-        <button type="submit" class="btn btn-rust mt-3">
-            <i class="fa-solid fa-floppy-disk"></i> Simpan absensi hari ini
-        </button>
+        <?php if (has_akses('absensi', 'create')):?>
+            <button type="submit" class="btn btn-rust mt-3">
+                <i class="fa-solid fa-floppy-disk"></i> Simpan absensi hari ini
+            </button>
+        <?php endif;?>
     </form>
     <?php endif; ?>
 </div>

@@ -8,12 +8,13 @@ class Barang extends MY_Controller
     public function __construct()
     {
         parent::__construct();
+        cek_akses('barang', 'read');
+
         $this->load->model('Barang_model');
         $this->load->library('form_validation');
     }
 
-    public function index()
-    {
+    public function index() {
         $this->load->library('pagination');
 
         $per_page = 8;
@@ -34,8 +35,9 @@ class Barang extends MY_Controller
         $this->render('barang/index', $data);
     }
 
-    public function simpan()
-    {
+    public function simpan() {
+        cek_akses('barang', 'create');
+
         $this->form_validation->set_rules('nama_barang', 'Nama Barang', 'required|trim');
         $this->form_validation->set_rules('kategori_id', 'Kategori', 'required|numeric');
         $this->form_validation->set_rules('satuan', 'Satuan', 'required|trim');
@@ -44,7 +46,7 @@ class Barang extends MY_Controller
 
         if ($this->form_validation->run() == FALSE) {
             $this->session->set_flashdata('error', validation_errors('<span>', '</span> '));
-            redirect('barang');
+            redirect('Barang');
         }
 
         $id = $this->input->post('id'); // Jika ada ID, berarti Update. Jika tidak, Insert.
@@ -67,15 +69,16 @@ class Barang extends MY_Controller
             $this->session->set_flashdata('success', 'Barang rosok baru berhasil ditambahkan.');
         }
 
-        redirect('barang');
+        redirect('Barang');
     }
 
-    public function hapus($id)
-    {
+    public function hapus($id) {
+        cek_akses('barang', 'delete');
+
         if ($id) {
             $this->Barang_model->hapus_sementara($id);
             $this->session->set_flashdata('success', 'Barang berhasil dihapus dari daftar aktif.');
         }
-        redirect('barang');
+        redirect('Barang');
     }
 }

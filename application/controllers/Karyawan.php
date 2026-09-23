@@ -1,27 +1,27 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Karyawan extends MY_Controller
-{
+class Karyawan extends MY_Controller {
     protected $active_menu = 'karyawan';
 
-    public function __construct()
-    {
+    public function __construct() {
         parent::__construct();
+        cek_akses('karyawan', 'read');
+
         $this->load->model('Karyawan_model');
         $this->load->library('form_validation');
     }
 
-    public function index()
-    {
+    public function index() {
         $data['page_title'] = 'Data Karyawan';
         $data['karyawan'] = $this->Karyawan_model->get_semua();
 
         $this->render('karyawan/index', $data);
     }
 
-    public function simpan()
-    {
+    public function simpan() {
+        cek_akses('karyawan', 'create');
+
         $this->form_validation->set_rules('nama', 'Nama', 'required|trim');
         $this->form_validation->set_rules('jabatan', 'Jabatan', 'trim');
         $this->form_validation->set_rules('no_hp', 'No HP', 'trim|max_length[20]');
@@ -31,7 +31,7 @@ class Karyawan extends MY_Controller
 
         if (!$this->form_validation->run()) {
             $this->session->set_flashdata('error', validation_errors('<span>', '</span> '));
-            redirect('karyawan');
+            redirect('Karyawan');
         }
 
         $id = $this->input->post('id');
@@ -54,20 +54,22 @@ class Karyawan extends MY_Controller
             $this->session->set_flashdata('success', 'Karyawan baru berhasil ditambahkan.');
         }
 
-        redirect('karyawan');
+        redirect('Karyawan');
     }
 
-    public function nonaktifkan($id)
-    {
+    public function nonaktifkan($id) {
+        cek_akses('karyawan', 'delete');
+
         $this->Karyawan_model->set_status($id, 'nonaktif');
         $this->session->set_flashdata('success', 'Karyawan dinonaktifkan (riwayat absensi & gaji tetap tersimpan).');
-        redirect('karyawan');
+        redirect('Karyawan');
     }
 
-    public function aktifkan($id)
-    {
+    public function aktifkan($id) {
+        cek_akses('karyawan', 'delete');
+
         $this->Karyawan_model->set_status($id, 'aktif');
         $this->session->set_flashdata('success', 'Karyawan diaktifkan kembali.');
-        redirect('karyawan');
+        redirect('Karyawan');
     }
 }

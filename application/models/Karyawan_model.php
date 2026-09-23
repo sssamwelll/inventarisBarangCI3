@@ -1,8 +1,8 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Karyawan_model extends CI_Model
-{
+class Karyawan_model extends CI_Model {
+
     private $table = 'karyawan';
 
     public function get_semua()

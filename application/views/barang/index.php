@@ -6,9 +6,11 @@
         <h1>Master Barang & Harga</h1>
         <span class="topbar-date">Kelola jenis rosok dan perbarui harga harian</span>
     </div>
-    <button type="button" class="btn btn-rust" onclick="tambahBarang()">
-        <i class="fa-solid fa-plus"></i> Tambah barang
-    </button>
+    <?php if (has_akses('barang', 'create')):?>
+        <button type="button" class="btn btn-rust" onclick="tambahBarang()">
+            <i class="fa-solid fa-plus"></i> Tambah barang
+        </button>
+    <?php endif;?>
 </div>
 
 <div class="content-area">
@@ -65,15 +67,18 @@
                                     <?= angka($b->stok, 1) ?> <span style="font-size:11px; font-weight:400; color:var(--steel);"> <?= html_escape($b->satuan) ?></span>
                                 </td>
                                 <td class="text-center">
-                                    <button class="btn btn-sm btn-outline-secondary py-1 px-2" 
-                                            title="Edit/Update Harga"
-                                            onclick="editBarang(<?= html_escape(json_encode($b)) ?>)">
-                                        <i class="fa-solid fa-pen"></i>
-                                    </button>
-                                    <a href="<?= base_url('Barang/hapus/' . $b->id) ?>" class="btn btn-sm btn-outline-danger py-1 px-2 btn-delete-barang" title="Hapus Barang"
-                                        data-delete-url="<?= base_url('Barang/hapus/' . $b->id) ?>" data-barang-name="<?= html_escape($b->nama_barang) ?>" data-barang-kategori="<?= html_escape($b->nama_kategori) ?>">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </a>
+                                    <?php if (has_akses('barang', 'delete')):?>
+                                        <button class="btn btn-sm btn-outline-secondary py-1 px-2" title="Edit/Update Harga" onclick="editBarang(<?= html_escape(json_encode($b)) ?>)">
+                                            <i class="fa-solid fa-pen"></i>
+                                        </button>
+                                    <?php endif;?>
+                                    
+                                    <?php if (has_akses('barang', 'delete')): ?>
+                                        <a href="<?= base_url('Barang/hapus/' . $b->id) ?>" class="btn btn-sm btn-outline-danger py-1 px-2 btn-delete-barang" title="Hapus Barang"
+                                            data-delete-url="<?= base_url('Barang/hapus/' . $b->id) ?>" data-barang-name="<?= html_escape($b->nama_barang) ?>" data-barang-kategori="<?= html_escape($b->nama_kategori) ?>">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </a>
+                                    <?php endif;?>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

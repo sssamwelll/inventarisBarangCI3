@@ -6,15 +6,17 @@
         <h1>Riwayat Absensi</h1>
         <span class="topbar-date">Rekap kehadiran &amp; lembur per periode</span>
     </div>
-    <a href="<?= base_url('absensi') ?>" class="btn btn-rust">
-        <i class="fa-solid fa-calendar-check"></i> Input absensi hari ini
-    </a>
+    <?php if (has_akses('absensi', 'create')):?>
+        <a href="<?= base_url('Absensi') ?>" class="btn btn-rust">
+            <i class="fa-solid fa-calendar-check"></i> Input absensi hari ini
+        </a>
+    <?php endif;?>
 </div>
 
 <div class="content-area">
     <div class="panel mb-3">
         <div class="panel-header"><h2>Filter</h2></div>
-        <form method="get" action="<?= base_url('absensi/riwayat') ?>" class="row g-2 p-3">
+        <form method="get" action="<?= base_url('Absensi/riwayat') ?>" class="row g-2 p-3">
             <div class="col-6 col-md-3">
                 <label class="form-label small">Dari tanggal</label>
                 <input type="date" name="tanggal_dari" class="form-control form-control-sm" value="<?= html_escape($filter['tanggal_dari']) ?>">

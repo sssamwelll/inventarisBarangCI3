@@ -6,9 +6,11 @@
         <h1>Data Karyawan</h1>
         <span class="topbar-date">Kelola karyawan, gaji harian, dan tarif lembur</span>
     </div>
-    <button type="button" class="btn btn-rust" onclick="tambahKaryawan()">
-        <i class="fa-solid fa-plus"></i> Tambah karyawan
-    </button>
+    <?php if (has_akses('karyawan', 'create')):?>
+        <button type="button" class="btn btn-rust" onclick="tambahKaryawan()">
+            <i class="fa-solid fa-plus"></i> Tambah karyawan
+        </button>
+    <?php endif;?>
 </div>
 
 <div class="content-area">
@@ -60,20 +62,26 @@
                             </span>
                         </td>
                         <td class="text-center">
-                            <button class="btn btn-sm btn-outline-secondary py-1 px-2" title="Edit"
-                                    onclick="editKaryawan(<?= html_escape(json_encode($k)) ?>)">
-                                <i class="fa-solid fa-pen"></i>
-                            </button>
-                            <?php if ($k->status === 'aktif'): ?>
-                                <a href="<?= base_url('karyawan/nonaktifkan/' . $k->id) ?>" class="btn btn-sm btn-outline-danger py-1 px-2" title="Nonaktifkan"
-                                   onclick="return confirm('Nonaktifkan karyawan ini? Data absensi & gaji lama tetap tersimpan.')">
-                                    <i class="fa-solid fa-user-slash"></i>
-                                </a>
-                            <?php else: ?>
-                                <a href="<?= base_url('karyawan/aktifkan/' . $k->id) ?>" class="btn btn-sm btn-outline-secondary py-1 px-2" title="Aktifkan kembali">
-                                    <i class="fa-solid fa-user-check"></i>
-                                </a>
-                            <?php endif; ?>
+                            <?php if (has_akses('karyawan', 'update')):?>
+                                <button class="btn btn-sm btn-outline-secondary py-1 px-2" title="Edit"
+                                        onclick="editKaryawan(<?= html_escape(json_encode($k)) ?>)">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                            <?php endif;?>
+
+                            <?php if (has_akses('karyawan', 'delete')):?>
+                                <?php if ($k->status === 'aktif'): ?>
+                                    <a href="<?= base_url('Karyawan/nonaktifkan/' . $k->id) ?>" class="btn btn-sm btn-outline-danger py-1 px-2 btn-nonaktif-karyawan"
+                                        title="Nonaktifkan" data-nonaktif-url="<?= base_url('Karyawan/nonaktifkan/' . $k->id) ?>"
+                                        data-karyawan-name="<?= html_escape($k->nama) ?>" data-karyawan-jabatan="<?= html_escape($k->jabatan) ?>">
+                                        <i class="fa-solid fa-user-slash"></i>
+                                    </a>
+                                <?php else: ?>
+                                    <a href="<?= base_url('Karyawan/aktifkan/' . $k->id) ?>" class="btn btn-sm btn-outline-secondary py-1 px-2" title="Aktifkan kembali">
+                                        <i class="fa-solid fa-user-check"></i>
+                                    </a>
+                                <?php endif; ?>
+                            <?php endif;?>
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -146,8 +154,55 @@
     </div>
 </div>
 
+<!-- Modal Nonaktifkan Karyawan -->
+<div class="modal fade" id="modalNonaktifKaryawan" tabindex="-1"
+     aria-labelledby="modalNonaktifKaryawanLabel" aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content modal-delete">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalNonaktifKaryawanLabel">
+                    <i class="fa-solid fa-user-slash me-2"></i>
+                    Nonaktifkan Karyawan
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"  aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <p class="mb-2">
+                    Apakah Anda yakin ingin menonaktifkan karyawan:
+                </p>
+                <div class="delete-nota">
+                    <i class="fa-solid fa-user me-2"></i>
+                    <div>
+                        <strong id="nonaktifKaryawanName">-</strong>
+                        <div id="nonaktifKaryawanJabatan"
+                             style="font-size:11px; opacity:.8;">
+                        </div>
+                    </div>
+                </div>
+
+                <small class="delete-warning">
+                    <i class="fa-solid fa-circle-exclamation me-1"></i>
+                    Data absensi dan gaji lama tetap tersimpan.
+                </small>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                    Batal
+                </button>
+                <a href="#" id="btn-confirm-nonaktif-karyawan" class="btn btn-delete-confirm">
+                    <i class="fa-solid fa-user-slash me-1"></i> Nonaktifkan
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-    var modalKaryawan = new bootstrap.Modal(document.getElementById('modalKaryawan'));
+    function getModalKaryawan() {
+        return bootstrap.Modal.getOrCreateInstance(document.getElementById('modalKaryawan'));
+    }
 
     function tambahKaryawan() {
         document.getElementById('modalKaryawanTitle').textContent = 'Tambah Karyawan';
@@ -158,7 +213,7 @@
         document.getElementById('form-tanggal-masuk').value = new Date().toISOString().slice(0, 10);
         document.getElementById('form-gaji-pokok').value = '';
         document.getElementById('form-tarif-lembur').value = '10000';
-        modalKaryawan.show();
+        getModalKaryawan().show();
     }
 
     function editKaryawan(data) {
@@ -170,6 +225,31 @@
         document.getElementById('form-tanggal-masuk').value = data.tanggal_masuk || '';
         document.getElementById('form-gaji-pokok').value = Math.round(data.gaji_pokok);
         document.getElementById('form-tarif-lembur').value = Math.round(data.tarif_lembur);
-        modalKaryawan.show();
+        getModalKaryawan().show();
     }
+
+    // Modal Nonaktifkan Karyawan
+    document.addEventListener('click', function (e) {
+        const button = e.target.closest('.btn-nonaktif-karyawan');
+
+        if (!button) {
+            return;
+        }
+
+        e.preventDefault();
+
+        const url = button.getAttribute('data-nonaktif-url');
+        const nama = button.getAttribute('data-karyawan-name');
+        const jabatan = button.getAttribute('data-karyawan-jabatan');
+
+        document.getElementById('nonaktifKaryawanName').textContent = nama;
+        document.getElementById('nonaktifKaryawanJabatan').textContent = jabatan;
+        document
+            .getElementById('btn-confirm-nonaktif-karyawan')
+            .setAttribute('href', url);
+
+        const modalElement = document.getElementById('modalNonaktifKaryawan');
+        const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+        modal.show();
+    });
 </script>
